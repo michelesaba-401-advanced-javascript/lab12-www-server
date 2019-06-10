@@ -1,11 +1,13 @@
-'use strict';
+"use strict";
 
-const express = require('express');
-const app = express();
-const PORT = 8080;
+require("dotenv").config();
 
-app.use(express.static('./public'));
-
-app.listen(PORT, () => {
-  console.log('Web Server up on port', PORT);
+// Start up DB Server
+const mongoose = require("mongoose");
+const options = {
+  useNewUrlParser: true,
+  useCreateIndex: true
+};
+mongoose.connect(process.env.MONGODB_URI, options).then(() => {
+  require("./src/app.js").start(process.env.PORT);
 });
