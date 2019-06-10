@@ -16,6 +16,17 @@ const users = new mongoose.Schema({
   }
 });
 
+users.virtual('acl', {
+  ref: 'roles',
+  localField: 'role',
+  foreignField: 'role',
+  justOne: true
+});
+
+users.pre('findOne', function(){
+  this.populate('acl');
+})
+
 users.pre("save", function(next) {
   bcrypt
     .hash(this.password, 10)
@@ -63,5 +74,13 @@ users.methods.generateToken = function() {
   };
   return jwt.sign(tokenData, process.env.SECRET || "changeit");
 };
+
+users.methods.can = function(capability) {
+  if(!this.acl || !this.capabilities)
+  return false;
+
+  return this.acl.capabilities.includes(capability);
+}
+
 
 module.exports = mongoose.model("users", users);

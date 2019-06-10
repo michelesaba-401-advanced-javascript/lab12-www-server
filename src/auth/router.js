@@ -8,21 +8,23 @@ const auth = require("./middleware");
 // const oauth = require("./oauth/google.js");
 // const githubAuth = require("./oauth/github");
 
+//authrouter = ROUTE for signing up with bearer auth / POST
+// get user from the req.body parsed by the body parser
 authRouter.post("/signup", (req, res, next) => {
   let user = new User(req.body);
   user
+  //user.save()saves user to database
     .save()
+    // then assign req.user = user
     .then(user => {
       req.user = user;
       req.token = user.generateToken();
-
       res.set("token", req.token);
       res.cookie("auth", req.token);
       res.send(req.token);
     })
     .catch(next);
 });
-
 
 authRouter.post("/signin", auth, (req, res, next) => {
   res.cookie("auth", req.token);
